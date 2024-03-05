@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/Hoosat-Oy/htn-stratum-bridge/src/gostratum"
 	"github.com/mattn/go-colorable"
-	"github.com/onemorebsmith/kaspastratum/src/gostratum"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -76,7 +76,7 @@ func ListenAndServe(cfg BridgeConfig) error {
 		go http.ListenAndServe(cfg.HealthCheckPort, nil)
 	}
 
-	shareHandler := newShareHandler(ksApi.kaspad)
+	shareHandler := newShareHandler(ksApi.htnd)
 	minDiff := cfg.MinShareDiff
 	if minDiff < 1 {
 		minDiff = 1

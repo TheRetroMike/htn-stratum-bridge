@@ -23,7 +23,7 @@ Once the import happens you'll be presented with a flightsheet filled with angry
 At this point the flight sheet should be happy:
 ![image](https://user-images.githubusercontent.com/59971111/191894518-0b02dacf-9904-4f53-81de-5bb952568146.png)
 
-Last step, you just need to edit the custom miner section with the address of the kaspa node you're mining to. This needs the full ip/port so it'll look similar to `192.168.0.12:16110` save the changes after you're finished
+Last step, you just need to edit the custom miner section with the address of the htn node you're mining to. This needs the full ip/port so it'll look similar to `192.168.0.12:16110` save the changes after you're finished
 
 ![image](https://user-images.githubusercontent.com/59971111/191894833-98eabaa2-2210-4ac5-a974-8ad94573a4e5.png)
 
@@ -43,7 +43,7 @@ You can verify that the bridge is working by either feching miner logs, or check
 ## Remote bridge (1 bridge for N miners)
 This is the preferred configuration as it's a bit easier to setup and the bridge can easily handle multiple miners.
 
-Ideally you'd run the bridge on the same machine that your kaspad node is running on. You can follow any of the installation methods defined in the main readme of the repo.
+Ideally you'd run the bridge on the same machine that your htnd node is running on. You can follow any of the installation methods defined in the main readme of the repo.
 
 Once the bridge is running, miners can be configured simply by replacing the pool URL with the ip:port of the bridge. In the example below the bridge is running on `192.168.0.25:5555`
 

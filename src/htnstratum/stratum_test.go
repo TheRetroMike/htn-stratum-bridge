@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Hoosat-Oy/htnd/app/appmessage"
+	"github.com/Hoosat-Oy/htnd/util/difficulty"
 	"github.com/google/go-cmp/cmp"
-	"github.com/kaspanet/kaspad/app/appmessage"
-	"github.com/kaspanet/kaspad/util/difficulty"
 )
 
 func TestHeaderSerialization(t *testing.T) {

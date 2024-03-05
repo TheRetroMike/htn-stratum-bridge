@@ -9,7 +9,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/onemorebsmith/kaspastratum/src/gostratum"
+	"github.com/Hoosat-Oy/htn-stratum-bridge/src/gostratum"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
@@ -175,7 +175,7 @@ func (c *clientListener) NewBlockAvailable(kapi *KaspaApi) {
 		c.lastBalanceCheck = time.Now()
 		if len(addresses) > 0 {
 			go func() {
-				balances, err := kapi.kaspad.GetBalancesByAddresses(addresses)
+				balances, err := kapi.htnd.GetBalancesByAddresses(addresses)
 				if err != nil {
 					c.logger.Warn("failed to get balances from kaspa, prom stats will be out of date", zap.Error(err))
 					return

@@ -1,8 +1,8 @@
-# Kaspa Stratum Adapter
+# HTN Stratum Adapter
 
-This is a lightweight daemon that allows mining to a local (or remote) kaspa node using stratum-base miners.
+This is a lightweight daemon that allows mining to a local (or remote) htn node using stratum-base miners.
 
-This daemon is confirmed working with the miners below in both dual-mining and kaspa-only modes (for those that support it) and Windows/MacOs/Linux/HiveOs.
+This daemon is confirmed working with the miners below in both dual-mining and htn-only modes (for those that support it) and Windows/MacOs/Linux/HiveOs.
 * bzminer
 * lolminer
 * srbminer
@@ -76,7 +76,7 @@ Note: This does requires that docker is installed.
 
   
 
-`docker compose -f docker-compose-all.yml up -d` will run the bridge with default settings. This assumes a local kaspad node with default port settings and exposes port 5555 to incoming stratum connections.
+`docker compose -f docker-compose-all.yml up -d` will run the bridge with default settings. This assumes a local htnd node with default port settings and exposes port 5555 to incoming stratum connections.
 
   
 
@@ -91,12 +91,12 @@ Most of the stats on the graph are averaged over an hour time period, so keep in
 
 Note: This does not require pulling down the repo, it only requires that docker is installed.
 
-`docker run -p 5555:5555 onemorebsmith/kaspa_bridge:latest --log=false` will run the bridge with default settings. This assumes a local kaspad node with default port settings and exposes port 5555 to incoming stratum connections.
+`docker run -p 5555:5555 onemorebsmith/kaspa_bridge:latest --log=false` will run the bridge with default settings. This assumes a local htnd node with default port settings and exposes port 5555 to incoming stratum connections.
 
 
 Detailed:
 
-`docker run -p {stratum_port}:5555 onemorebsmith/kaspa_bridge  --log=false --kaspa={kaspad_address} --stats={false}` will run the bridge targeting a kaspad node at {kaspad_address}. stratum port accepting connections on {stratum_port}, and only logging connection activity, found blocks, and errors
+`docker run -p {stratum_port}:5555 onemorebsmith/kaspa_bridge  --log=false --kaspa={kaspad_address} --stats={false}` will run the bridge targeting a htnd node at {kaspad_address}. stratum port accepting connections on {stratum_port}, and only logging connection activity, found blocks, and errors
 
   
 
