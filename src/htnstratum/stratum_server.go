@@ -63,7 +63,7 @@ func ListenAndServe(cfg BridgeConfig) error {
 	if blockWaitTime < minBlockWaitTime {
 		blockWaitTime = minBlockWaitTime
 	}
-	ksApi, err := NewKaspaAPI(cfg.RPCServer, blockWaitTime, logger)
+	ksApi, err := NewHtnApi(cfg.RPCServer, blockWaitTime, logger)
 	if err != nil {
 		return err
 	}
