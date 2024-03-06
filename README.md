@@ -106,7 +106,7 @@ Install go 1.18 using whatever package manager is approprate for your system
 
   
 
-run `cd cmd/kaspabridge;go build .`
+run `cd cmd/htnbridge;go build .`
 
   
 
@@ -114,8 +114,8 @@ Modify the config file in ./cmd/bridge/config.yaml with your setup, the file com
 
   
 
-run `./kaspabridge` in the `cmd/kaspabridge` directory
+run `./kaspabridge` in the `cmd/htnbridge` directory
 
   
 
-all-in-one (build + run) `cd cmd/kaspabridge/;go build .;./kaspabridge`
+all-in-one (build + run) `cd cmd/htnbridge/;go build .;./htnbridge`
