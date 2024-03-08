@@ -124,7 +124,7 @@ func CleanWallet(in string) (string, error) {
 
 	// has hoosat: prefix but other weirdness somewhere
 	if walletRegex.MatchString(in) {
-		return in[0:67], nil
+		return in[0:68], nil
 	}
 	return "", errors.New("unable to coerce wallet to valid hoosat address")
 }

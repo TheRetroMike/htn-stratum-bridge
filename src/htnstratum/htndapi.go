@@ -20,7 +20,7 @@ type HtnApi struct {
 	connected     bool
 }
 
-func NewHtnApi(address string, blockWaitTime time.Duration, logger *zap.SugaredLogger) (*HtnApi, error) {
+func NewHtnAPI(address string, blockWaitTime time.Duration, logger *zap.SugaredLogger) (*HtnApi, error) {
 	client, err := rpcclient.NewRPCClient(address)
 	if err != nil {
 		return nil, err
@@ -35,28 +35,28 @@ func NewHtnApi(address string, blockWaitTime time.Duration, logger *zap.SugaredL
 	}, nil
 }
 
-func (htn *HtnApi) Start(ctx context.Context, blockCb func()) {
-	htn.waitForSync(true)
-	go htn.startBlockTemplateListener(ctx, blockCb)
-	go htn.startStatsThread(ctx)
+func (api *HtnApi) Start(ctx context.Context, blockCb func()) {
+	api.waitForSync(true)
+	go api.startBlockTemplateListener(ctx, blockCb)
+	go api.startStatsThread(ctx)
 }
 
-func (htn *HtnApi) startStatsThread(ctx context.Context) {
+func (api *HtnApi) startStatsThread(ctx context.Context) {
 	ticker := time.NewTicker(30 * time.Second)
 	for {
 		select {
 		case <-ctx.Done():
-			htn.logger.Warn("context cancelled, stopping stats thread")
+			api.logger.Warn("context cancelled, stopping stats thread")
 			return
 		case <-ticker.C:
-			dagResponse, err := htn.htnd.GetBlockDAGInfo()
+			dagResponse, err := api.htnd.GetBlockDAGInfo()
 			if err != nil {
-				htn.logger.Warn("failed to get network hashrate from hoosat, prom stats will be out of date", zap.Error(err))
+				api.logger.Warn("failed to get network hashrate from htnd, prom stats will be out of date", zap.Error(err))
 				continue
 			}
-			response, err := htn.htnd.EstimateNetworkHashesPerSecond(dagResponse.TipHashes[0], 1000)
+			response, err := api.htnd.EstimateNetworkHashesPerSecond(dagResponse.TipHashes[0], 1000)
 			if err != nil {
-				htn.logger.Warn("failed to get network hashrate from hoosat, prom stats will be out of date", zap.Error(err))
+				api.logger.Warn("failed to get network hashrate from htnd, prom stats will be out of date", zap.Error(err))
 				continue
 			}
 			RecordNetworkStats(response.NetworkHashesPerSecond, dagResponse.BlockCount, dagResponse.Difficulty)
@@ -64,16 +64,16 @@ func (htn *HtnApi) startStatsThread(ctx context.Context) {
 	}
 }
 
-func (htn *HtnApi) reconnect() error {
-	if htn.htnd != nil {
-		return htn.htnd.Reconnect()
+func (api *HtnApi) reconnect() error {
+	if api.htnd != nil {
+		return api.htnd.Reconnect()
 	}
 
-	client, err := rpcclient.NewRPCClient(htn.address)
+	client, err := rpcclient.NewRPCClient(api.address)
 	if err != nil {
 		return err
 	}
-	htn.htnd = client
+	api.htnd = client
 	return nil
 }
 
@@ -89,7 +89,7 @@ func (s *HtnApi) waitForSync(verbose bool) error {
 		if clientInfo.IsSynced {
 			break
 		}
-		s.logger.Warn("Htn is not synced, waiting for sync before starting bridge")
+		s.logger.Warn("HTND is not synced, waiting for sync before starting bridge")
 		time.Sleep(5 * time.Second)
 	}
 	if verbose {
@@ -104,7 +104,7 @@ func (s *HtnApi) startBlockTemplateListener(ctx context.Context, blockReadyCb fu
 		blockReadyChan <- true
 	})
 	if err != nil {
-		s.logger.Error("fatal: failed to register for block notifications from hoosat")
+		s.logger.Error("fatal: failed to register for block notifications from htnd")
 	}
 
 	ticker := time.NewTicker(s.blockWaitTime)
@@ -129,12 +129,12 @@ func (s *HtnApi) startBlockTemplateListener(ctx context.Context, blockReadyCb fu
 	}
 }
 
-func (htn *HtnApi) GetBlockTemplate(
+func (api *HtnApi) GetBlockTemplate(
 	client *gostratum.StratumContext) (*appmessage.GetBlockTemplateResponseMessage, error) {
-	template, err := htn.htnd.GetBlockTemplate(client.WalletAddr,
-		fmt.Sprintf(`'%s' via onemorebsmith/hoosat-stratum-bridge_%s`, client.RemoteApp, version))
+	template, err := api.htnd.GetBlockTemplate(client.WalletAddr,
+		fmt.Sprintf(`'%s' via hoosat-oy/htnd-stratum-bridge_%s`, client.RemoteApp, version))
 	if err != nil {
-		return nil, errors.Wrap(err, "failed fetching new block template from hoosat")
+		return nil, errors.Wrap(err, "failed fetching new block template from htnd")
 	}
 	return template, nil
 }
