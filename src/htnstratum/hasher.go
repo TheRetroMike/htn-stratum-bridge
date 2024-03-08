@@ -1,4 +1,4 @@
-package kaspastratum
+package htnstratum
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 	"math/big"
 
 	"github.com/Hoosat-Oy/htnd/app/appmessage"
-	"golang.org/x/crypto/blake2b"
+	"lukechampine.com/blake3"
 )
 
 // static value definitions to avoid overhead in diff translations
@@ -23,17 +23,17 @@ var (
 // Basically three different ways of representing difficulty, each used on
 // different occasions.  All 3 are updated when the stratum diff is set via
 // the setDiffValue method
-type kaspaDiff struct {
+type htnDiff struct {
 	hashValue   float64  // previously known as shareValue
 	diffValue   float64  // previously known as fixedDifficulty
 	targetValue *big.Int // previously know as fixedDifficultyBI
 }
 
-func newKaspaDiff() *kaspaDiff {
-	return &kaspaDiff{}
+func newHtnDiff() *htnDiff {
+	return &htnDiff{}
 }
 
-func (k *kaspaDiff) setDiffValue(diff float64) {
+func (k *htnDiff) setDiffValue(diff float64) {
 	k.diffValue = diff
 	k.targetValue = DiffToTarget(diff)
 	k.hashValue = DiffToHash(diff)
@@ -55,10 +55,7 @@ func DiffToHash(diff float64) float64 {
 }
 
 func SerializeBlockHeader(template *appmessage.RPCBlock) ([]byte, error) {
-	hasher, err := blake2b.New(32, []byte("BlockHash"))
-	if err != nil {
-		return nil, err
-	}
+	hasher := blake3.New(32, []byte("BlockHash"))
 	write16(hasher, uint16(template.Header.Version))
 	write64(hasher, uint64(len(template.Header.Parents)))
 	for _, v := range template.Header.Parents {

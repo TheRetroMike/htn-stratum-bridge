@@ -1,4 +1,4 @@
-package kaspastratum
+package htnstratum
 
 import (
 	"fmt"
@@ -32,16 +32,16 @@ type WorkStats struct {
 }
 
 type shareHandler struct {
-	kaspa        *rpcclient.RPCClient
+	hoosat       *rpcclient.RPCClient
 	stats        map[string]*WorkStats
 	statsLock    sync.Mutex
 	overall      WorkStats
 	tipBlueScore uint64
 }
 
-func newShareHandler(kaspa *rpcclient.RPCClient) *shareHandler {
+func newShareHandler(hoosat *rpcclient.RPCClient) *shareHandler {
 	return &shareHandler{
-		kaspa:     kaspa,
+		hoosat:    hoosat,
 		stats:     map[string]*WorkStats{},
 		statsLock: sync.Mutex{},
 	}
@@ -233,7 +233,7 @@ func (sh *shareHandler) submit(ctx *gostratum.StratumContext,
 		Header:       mutable.ToImmutable(),
 		Transactions: block.Transactions,
 	}
-	_, err := sh.kaspa.SubmitBlock(block)
+	_, err := sh.hoosat.SubmitBlock(block)
 	blockhash := consensushashing.BlockHash(block)
 	// print after the submit to get it submitted faster
 	ctx.Logger.Info(fmt.Sprintf("Submitted block %s", blockhash))

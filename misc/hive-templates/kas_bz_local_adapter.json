@@ -9,7 +9,7 @@
             "miner": "bzminer",
             "miner_config": {
                 "url": "127.0.0.1:5555",
-                "algo": "kaspa",
+                "algo": "Hoosat",
                 "worker": "%WORKER_NAME%",
                 "template": "%WAL%",
                 "user_config": "\"oc_lock_memory_clock\": 810"
@@ -21,12 +21,12 @@
             "pool_ssl": false,
             "dpool_ssl": false,
             "miner": "custom",
-            "miner_alt": "ks_bridge",
+            "miner_alt": "htn_brige",
             "miner_config": {
-                "url": "YOUR_KASPAD_NODE_IP_HERE:16110",
-                "miner": "ks_bridge",
+                "url": "YOUR_HTND_NODE_IP_HERE:16110",
+                "miner": "htn_brige",
                 "template": "doesnt.matter",
-                "install_url": "https://github.com/onemorebsmith/kaspa-stratum-bridge/releases/download/v1.1.2/ks_bridge-1.1.2_hive.tar.gz"
+                "install_url": "https://github.com/onemorebsmith/hoosat-stratum-bridge/releases/download/v1.1.2/ks_bridge-1.1.2_hive.tar.gz"
             },
             "pool_geo": []
         }

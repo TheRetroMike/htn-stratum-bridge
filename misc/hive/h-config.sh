@@ -8,7 +8,7 @@ CONF=$CUSTOM_USER_CONFIG
 
 if [ -z "$var" ]
 then
-        CONF+=" -kaspa=$CUSTOM_URL"
+        CONF+=" -hoosat=$CUSTOM_URL"
 fi
 
 echo -e "$CONF" > $MINER_CONFIG

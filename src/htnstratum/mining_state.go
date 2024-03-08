@@ -1,4 +1,4 @@
-package kaspastratum
+package htnstratum
 
 import (
 	"math/big"
@@ -19,7 +19,7 @@ type MiningState struct {
 	initialized bool
 	useBigJob   bool
 	connectTime time.Time
-	stratumDiff *kaspaDiff
+	stratumDiff *htnDiff
 }
 
 func MiningStateGenerator() any {

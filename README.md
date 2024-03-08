@@ -14,7 +14,7 @@ Discord discussions/issues: [here](https://discord.com/channels/5991532306598461
 
 Huge shoutout to https://github.com/KaffinPX/KStratum for the inspiration
   
-Tips appreciated: `kaspa:qp9v6090sr8jjlkq7r3f4h9un5rtfhu3raknfg3cca9eapzee57jzew0kxwlp`
+Tips appreciated: `hoosat:qp9v6090sr8jjlkq7r3f4h9un5rtfhu3raknfg3cca9eapzee57jzew0kxwlp`
 
 Try my 0-fee [Htn Pool](http://ghost-pool.io/) built with this code!
 
@@ -33,7 +33,7 @@ Shares-based work allocation with miner-like periodic stat output:
 
 Optional monitoring UI:
 
-https://github.com/onemorebsmith/kaspa-stratum-bridge/blob/main/monitoring-setup.md
+https://github.com/onemorebsmith/hoosat-stratum-bridge/blob/main/monitoring-setup.md
 
 ![image](https://user-images.githubusercontent.com/59971111/192025446-f20d74a5-f9e0-4290-b98b-9f56af8f23b4.png)
 
@@ -42,7 +42,7 @@ https://github.com/onemorebsmith/kaspa-stratum-bridge/blob/main/monitoring-setup
 
 Prometheus API:
 
-If the app is run with the `-prom={port}` flag the application will host stats on the port specified by `{port}`, these stats are documented in the file [prom.go](src/kaspastratum/prom.go). This is intended to be use by prometheus but the stats can be fetched and used independently if desired. `curl http://localhost:2114/metrics | grep ks_` will get a listing of current stats. All published stats have a `ks_` prefix for ease of use.
+If the app is run with the `-prom={port}` flag the application will host stats on the port specified by `{port}`, these stats are documented in the file [prom.go](src/htnstratum/prom.go). This is intended to be use by prometheus but the stats can be fetched and used independently if desired. `curl http://localhost:2114/metrics | grep ks_` will get a listing of current stats. All published stats have a `ks_` prefix for ease of use.
 
 ```
 user:~$ curl http://localhost:2114/metrics | grep ks_
@@ -57,14 +57,14 @@ ks_network_block_count 271966
 ks_network_difficulty_gauge 1.2526479386202519e+14
 # HELP ks_valid_share_counter Number of shares found by worker over time
 # TYPE ks_valid_share_counter counter
-ks_valid_share_counter{ip="192.168.0.17",miner="SRBMiner-MULTI/1.0.8",wallet="kaspa:qzk3uh2twkhu0fmuq50mdy3r2yzuwqvstq745hxs7tet25hfd4egcafcdmpdl",worker="002"} 276
-ks_valid_share_counter{ip="192.168.0.24",miner="BzMiner-v11.1.0",wallet="kaspa:qzk3uh2twkhu0fmuq50mdy3r2yzuwqvstq745hxs7tet25hfd4egcafcdmpdl",worker="003"} 43
-ks_valid_share_counter{ip="192.168.0.65",miner="BzMiner-v11.1.0",wallet="kaspa:qzk3uh2twkhu0fmuq50mdy3r2yzuwqvstq745hxs7tet25hfd4egcafcdmpdl",worker="001"} 307
+ks_valid_share_counter{ip="192.168.0.17",miner="SRBMiner-MULTI/1.0.8",wallet="hoosat:qzk3uh2twkhu0fmuq50mdy3r2yzuwqvstq745hxs7tet25hfd4egcafcdmpdl",worker="002"} 276
+ks_valid_share_counter{ip="192.168.0.24",miner="BzMiner-v11.1.0",wallet="hoosat:qzk3uh2twkhu0fmuq50mdy3r2yzuwqvstq745hxs7tet25hfd4egcafcdmpdl",worker="003"} 43
+ks_valid_share_counter{ip="192.168.0.65",miner="BzMiner-v11.1.0",wallet="hoosat:qzk3uh2twkhu0fmuq50mdy3r2yzuwqvstq745hxs7tet25hfd4egcafcdmpdl",worker="001"} 307
 # HELP ks_worker_job_counter Number of jobs sent to the miner by worker over time
 # TYPE ks_worker_job_counter counter
-ks_worker_job_counter{ip="192.168.0.17",miner="SRBMiner-MULTI/1.0.8",wallet="kaspa:qzk3uh2twkhu0fmuq50mdy3r2yzuwqvstq745hxs7tet25hfd4egcafcdmpdl",worker="002"} 3471
-ks_worker_job_counter{ip="192.168.0.24",miner="BzMiner-v11.1.0",wallet="kaspa:qzk3uh2twkhu0fmuq50mdy3r2yzuwqvstq745hxs7tet25hfd4egcafcdmpdl",worker="003"} 3399
-ks_worker_job_counter{ip="192.168.0.65",miner="BzMiner-v11.1.0",wallet="kaspa:qzk3uh2twkhu0fmuq50mdy3r2yzuwqvstq745hxs7tet25hfd4egcafcdmpdl",worker="001"} 3425
+ks_worker_job_counter{ip="192.168.0.17",miner="SRBMiner-MULTI/1.0.8",wallet="hoosat:qzk3uh2twkhu0fmuq50mdy3r2yzuwqvstq745hxs7tet25hfd4egcafcdmpdl",worker="002"} 3471
+ks_worker_job_counter{ip="192.168.0.24",miner="BzMiner-v11.1.0",wallet="hoosat:qzk3uh2twkhu0fmuq50mdy3r2yzuwqvstq745hxs7tet25hfd4egcafcdmpdl",worker="003"} 3399
+ks_worker_job_counter{ip="192.168.0.65",miner="BzMiner-v11.1.0",wallet="hoosat:qzk3uh2twkhu0fmuq50mdy3r2yzuwqvstq745hxs7tet25hfd4egcafcdmpdl",worker="001"} 3425
 
 ```
 
@@ -91,12 +91,12 @@ Most of the stats on the graph are averaged over an hour time period, so keep in
 
 Note: This does not require pulling down the repo, it only requires that docker is installed.
 
-`docker run -p 5555:5555 onemorebsmith/kaspa_bridge:latest --log=false` will run the bridge with default settings. This assumes a local htnd node with default port settings and exposes port 5555 to incoming stratum connections.
+`docker run -p 5555:5555 onemorebsmith/hoosat_bridge:latest --log=false` will run the bridge with default settings. This assumes a local htnd node with default port settings and exposes port 5555 to incoming stratum connections.
 
 
 Detailed:
 
-`docker run -p {stratum_port}:5555 onemorebsmith/kaspa_bridge  --log=false --kaspa={kaspad_address} --stats={false}` will run the bridge targeting a htnd node at {kaspad_address}. stratum port accepting connections on {stratum_port}, and only logging connection activity, found blocks, and errors
+`docker run -p {stratum_port}:5555 onemorebsmith/hoosat_bridge  --log=false --hoosat={htnd_address} --stats={false}` will run the bridge targeting a htnd node at {htnd_address}. stratum port accepting connections on {stratum_port}, and only logging connection activity, found blocks, and errors
 
   
 
@@ -114,7 +114,7 @@ Modify the config file in ./cmd/bridge/config.yaml with your setup, the file com
 
   
 
-run `./kaspabridge` in the `cmd/htnbridge` directory
+run `./htnbridge` in the `cmd/htnbridge` directory
 
   
 

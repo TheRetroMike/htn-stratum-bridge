@@ -1,4 +1,4 @@
-package kaspastratum
+package htnstratum
 
 import (
 	"context"
@@ -29,7 +29,7 @@ func NewHtnApi(address string, blockWaitTime time.Duration, logger *zap.SugaredL
 	return &HtnApi{
 		address:       address,
 		blockWaitTime: blockWaitTime,
-		logger:        logger.With(zap.String("component", "kaspaapi:"+address)),
+		logger:        logger.With(zap.String("component", "htnapi:"+address)),
 		htnd:          client,
 		connected:     true,
 	}, nil
@@ -51,12 +51,12 @@ func (htn *HtnApi) startStatsThread(ctx context.Context) {
 		case <-ticker.C:
 			dagResponse, err := htn.htnd.GetBlockDAGInfo()
 			if err != nil {
-				htn.logger.Warn("failed to get network hashrate from kaspa, prom stats will be out of date", zap.Error(err))
+				htn.logger.Warn("failed to get network hashrate from hoosat, prom stats will be out of date", zap.Error(err))
 				continue
 			}
 			response, err := htn.htnd.EstimateNetworkHashesPerSecond(dagResponse.TipHashes[0], 1000)
 			if err != nil {
-				htn.logger.Warn("failed to get network hashrate from kaspa, prom stats will be out of date", zap.Error(err))
+				htn.logger.Warn("failed to get network hashrate from hoosat, prom stats will be out of date", zap.Error(err))
 				continue
 			}
 			RecordNetworkStats(response.NetworkHashesPerSecond, dagResponse.BlockCount, dagResponse.Difficulty)
@@ -104,7 +104,7 @@ func (s *HtnApi) startBlockTemplateListener(ctx context.Context, blockReadyCb fu
 		blockReadyChan <- true
 	})
 	if err != nil {
-		s.logger.Error("fatal: failed to register for block notifications from kaspa")
+		s.logger.Error("fatal: failed to register for block notifications from hoosat")
 	}
 
 	ticker := time.NewTicker(s.blockWaitTime)
@@ -132,9 +132,9 @@ func (s *HtnApi) startBlockTemplateListener(ctx context.Context, blockReadyCb fu
 func (htn *HtnApi) GetBlockTemplate(
 	client *gostratum.StratumContext) (*appmessage.GetBlockTemplateResponseMessage, error) {
 	template, err := htn.htnd.GetBlockTemplate(client.WalletAddr,
-		fmt.Sprintf(`'%s' via onemorebsmith/kaspa-stratum-bridge_%s`, client.RemoteApp, version))
+		fmt.Sprintf(`'%s' via onemorebsmith/hoosat-stratum-bridge_%s`, client.RemoteApp, version))
 	if err != nil {
-		return nil, errors.Wrap(err, "failed fetching new block template from kaspa")
+		return nil, errors.Wrap(err, "failed fetching new block template from hoosat")
 	}
 	return template, nil
 }

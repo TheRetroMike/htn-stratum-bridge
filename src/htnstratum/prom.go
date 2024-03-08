@@ -1,4 +1,4 @@
-package kaspastratum
+package htnstratum
 
 import (
 	"fmt"
