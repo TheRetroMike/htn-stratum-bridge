@@ -63,7 +63,7 @@ func ListenAndServe(cfg BridgeConfig) error {
 	if blockWaitTime < minBlockWaitTime {
 		blockWaitTime = minBlockWaitTime
 	}
-	ksApi, err := NewHtnAPI(cfg.RPCServer, blockWaitTime, logger)
+	HtnApi, err := NewHtnAPI(cfg.RPCServer, blockWaitTime, logger)
 	if err != nil {
 		return err
 	}
@@ -76,7 +76,7 @@ func ListenAndServe(cfg BridgeConfig) error {
 		go http.ListenAndServe(cfg.HealthCheckPort, nil)
 	}
 
-	shareHandler := newShareHandler(ksApi.htnd)
+	shareHandler := newShareHandler(HtnApi.htnd)
 	minDiff := cfg.MinShareDiff
 	if minDiff < 1 {
 		minDiff = 1
@@ -106,8 +106,8 @@ func ListenAndServe(cfg BridgeConfig) error {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	ksApi.Start(ctx, func() {
-		clientHandler.NewBlockAvailable(ksApi)
+	HtnApi.Start(ctx, func() {
+		clientHandler.NewBlockAvailable(HtnApi)
 	})
 
 	if cfg.PrintStats {
