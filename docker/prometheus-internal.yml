@@ -18,8 +18,8 @@ rule_files:
 # Here it's Prometheus itself.
 scrape_configs:
   # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
-  - job_name: 'ks_bridge'
+  - job_name: 'htn_bridge'
          # metrics_path defaults to '/metrics'
          # scheme defaults to 'http'.
     static_configs:
-      - targets: ['ks_bridge:2114']
+      - targets: ['htn_bridge:2114']

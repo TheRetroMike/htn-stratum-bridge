@@ -4,35 +4,37 @@ This assumes that you will be running the ks_bridge on the mining computer. I've
 
 ---
 
-I'll be using bzminer here, so I'm focusing on the file [here](misc/hive-templates/kas_bz_local_adapter.json). Hive gives the option to import from a file or from your clipboard; I'll be copying directly from the clipboard in this example. 
+I'll be using srb here, so I'm focusing on the file [here](misc/hive-templates/htn_srb_local_adapter.json). Hive gives the option to import from a file or from your clipboard; I'll be copying directly from the clipboard in this example. 
 
 Navigate to the template that you want and hit the 'copy file contents' button
+![image](https://github.com/Hoosat-Oy/htnd-stratum-bridge/assets/138370658/a72add34-0629-42dd-a3fc-4ff10cc7c89b)
 
-![image](https://user-images.githubusercontent.com/59971111/191894038-4435237f-d68e-4248-bb44-60e968319ad3.png)
 
 This will load the contents of the file in your clipboard. Now go to hive, create a new flight sheet, and click the import from clipboard button
 
-![image](https://user-images.githubusercontent.com/59971111/191893779-01ebdceb-da8d-455e-9e87-389685a59cc1.png)
 
 Once the import happens you'll be presented with a flightsheet filled with angry little red boxes like below.
+![image](https://github.com/Hoosat-Oy/htnd-stratum-bridge/assets/138370658/acd36eb5-eb2e-450d-81a8-b4e25fde005a)
 
-![image](https://user-images.githubusercontent.com/59971111/191894254-4b27961c-5b08-4f9a-af20-2b04922ae2f4.png)
+
 
  Set the coin & wallet for both miners in the flight sheet, and choose 'Configure in miner' for the pool. Strangly you cannot edit the miner configs until you touch the pool config, so re-set it to 'Configure in miner' if the UI is being weird. 
  
 At this point the flight sheet should be happy:
-![image](https://user-images.githubusercontent.com/59971111/191894518-0b02dacf-9904-4f53-81de-5bb952568146.png)
+![image](https://github.com/Hoosat-Oy/htnd-stratum-bridge/assets/138370658/e9019889-dfb0-4378-91e0-513832896c65)
 
-Last step, you just need to edit the custom miner section with the address of the htn node you're mining to. This needs the full ip/port so it'll look similar to `192.168.0.12:16110` save the changes after you're finished
 
-![image](https://user-images.githubusercontent.com/59971111/191894833-98eabaa2-2210-4ac5-a974-8ad94573a4e5.png)
+Last step, you just need to edit the custom miner section with the address of the hoosat node you're mining to. This needs the full ip/port so it'll look similar to `192.168.0.12:13110` save the changes after you're finished
+![image](https://github.com/Hoosat-Oy/htnd-stratum-bridge/assets/138370658/28c62e9e-47ed-418c-9558-dad54d417688)
+
 
 
 You should be good to create the flight sheet now. However, you should verify the configurations in both miners before you run it. Never run something blindly off the internet :)
 
 This is what the configuration generally should look like
+![image](https://github.com/Hoosat-Oy/htnd-stratum-bridge/assets/138370658/60092d7f-17c3-4ccb-b986-5c37e64249d5)
 
-![image](https://user-images.githubusercontent.com/59971111/191895060-79033098-4303-496d-b5dd-d4cabcc88946.png)
+
 
 The important parts are the 'Install URL' (make sure that points back to this repo somewhere) and double check that your wallet address is set correctly. 
 
@@ -47,7 +49,8 @@ Ideally you'd run the bridge on the same machine that your htnd node is running 
 
 Once the bridge is running, miners can be configured simply by replacing the pool URL with the ip:port of the bridge. In the example below the bridge is running on `192.168.0.25:5555`
 
-![image](https://user-images.githubusercontent.com/59971111/191895463-974c75eb-b31f-4196-a0ac-2f0a689fe829.png)
+![image](https://github.com/Hoosat-Oy/htnd-stratum-bridge/assets/138370658/6756d318-76a2-4eec-b784-15db3dc6d02a)
+
 
 
 

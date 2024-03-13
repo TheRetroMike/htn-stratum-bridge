@@ -18,7 +18,7 @@ const minBlockWaitTime = 500 * time.Millisecond
 
 type BridgeConfig struct {
 	StratumPort     string        `yaml:"stratum_port"`
-	RPCServer       string        `yaml:"htnd_address"`
+	RPCServer       string        `yaml:"hoosat_address"`
 	PromPort        string        `yaml:"prom_port"`
 	PrintStats      bool          `yaml:"print_stats"`
 	UseLogFile      bool          `yaml:"log_to_file"`
@@ -63,7 +63,7 @@ func ListenAndServe(cfg BridgeConfig) error {
 	if blockWaitTime < minBlockWaitTime {
 		blockWaitTime = minBlockWaitTime
 	}
-	HtnApi, err := NewHtnAPI(cfg.RPCServer, blockWaitTime, logger)
+	pyApi, err := NewPyrinAPI(cfg.RPCServer, blockWaitTime, logger)
 	if err != nil {
 		return err
 	}
@@ -76,7 +76,7 @@ func ListenAndServe(cfg BridgeConfig) error {
 		go http.ListenAndServe(cfg.HealthCheckPort, nil)
 	}
 
-	shareHandler := newShareHandler(HtnApi.htnd)
+	shareHandler := newShareHandler(pyApi.hoosat)
 	minDiff := cfg.MinShareDiff
 	if minDiff < 1 {
 		minDiff = 1
@@ -106,8 +106,8 @@ func ListenAndServe(cfg BridgeConfig) error {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	HtnApi.Start(ctx, func() {
-		clientHandler.NewBlockAvailable(HtnApi)
+	pyApi.Start(ctx, func() {
+		clientHandler.NewBlockAvailable(pyApi)
 	})
 
 	if cfg.PrintStats {

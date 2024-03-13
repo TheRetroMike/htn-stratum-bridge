@@ -12,7 +12,7 @@ func TestPromValid(t *testing.T) {
 	// is valid to write to here
 	ctx := gostratum.StratumContext{}
 
-	RecordShareFound(&ctx, 1)
+	RecordShareFound(&ctx, 300000)
 	RecordStaleShare(&ctx)
 	RecordDupeShare(&ctx)
 	RecordInvalidShare(&ctx)

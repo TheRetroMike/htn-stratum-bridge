@@ -2,10 +2,10 @@ CMD_PATH="../cmd/htnbridge"
 rm -rf release
 mkdir -p release
 cd release
-VERSION=1.1.6
-ARCHIVE="ks_bridge-${VERSION}"
-OUTFILE="ks_bridge"
-OUTDIR="ks_bridge"
+VERSION=0.13.4
+ARCHIVE="htn_bridge-${VERSION}"
+OUTFILE="htn_bridge"
+OUTDIR="htn_bridge"
 
 # windows
 mkdir -p ${OUTDIR};env GOOS=windows GOARCH=amd64 go build -o ${OUTDIR}/${OUTFILE}.exe ${CMD_PATH};cp ${CMD_PATH}/config.yaml ${OUTDIR}/

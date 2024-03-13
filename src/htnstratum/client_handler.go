@@ -126,7 +126,7 @@ func (c *clientListener) NewBlockAvailable(kapi *HtnApi) {
 				state.initialized = true
 				state.useBigJob = bigJobRegex.MatchString(client.RemoteApp)
 				// first pass through send the difficulty since it's fixed
-				state.stratumDiff = newHtnDiff()
+				state.stratumDiff = newHoosatDiff()
 				state.stratumDiff.setDiffValue(c.minShareDiff)
 				if err := client.Send(gostratum.JsonRpcEvent{
 					Version: "2.0",
@@ -175,7 +175,7 @@ func (c *clientListener) NewBlockAvailable(kapi *HtnApi) {
 		c.lastBalanceCheck = time.Now()
 		if len(addresses) > 0 {
 			go func() {
-				balances, err := kapi.htnd.GetBalancesByAddresses(addresses)
+				balances, err := kapi.hoosat.GetBalancesByAddresses(addresses)
 				if err != nil {
 					c.logger.Warn("failed to get balances from hoosat, prom stats will be out of date", zap.Error(err))
 					return

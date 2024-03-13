@@ -1,9 +1,9 @@
 FROM golang:1.19.1 as builder
 
-LABEL org.opencontainers.image.description="Dockerized HTN Stratum Bridge"      
-LABEL org.opencontainers.image.authors="onemorebsmith"  
-LABEL org.opencontainers.image.source="https://github.com/Hoosat-Oy/htn-stratum-bridge.git"
-              
+LABEL org.opencontainers.image.description="Dockerized Hoosat Stratum Bridge"
+LABEL org.opencontainers.image.authors="onemorebsmith,hoosat"
+LABEL org.opencontainers.image.source="https://github.com/Hoosat-Oy/htn-stratum-bridge"
+
 WORKDIR /go/src/app
 ADD go.mod .
 ADD go.sum .
