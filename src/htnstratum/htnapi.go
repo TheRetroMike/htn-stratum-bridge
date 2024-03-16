@@ -132,7 +132,7 @@ func (s *HtnApi) startBlockTemplateListener(ctx context.Context, blockReadyCb fu
 func (py *HtnApi) GetBlockTemplate(
 	client *gostratum.StratumContext) (*appmessage.GetBlockTemplateResponseMessage, error) {
 	template, err := py.hoosat.GetBlockTemplate(client.WalletAddr,
-		fmt.Sprintf(`'%s' via Pyrinpyi/hoosat-stratum-bridge_%s`, client.RemoteApp, version))
+		fmt.Sprintf(`'%s' via htn-stratum-bridge_%s`, client.RemoteApp, version))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed fetching new block template from hoosat")
 	}
