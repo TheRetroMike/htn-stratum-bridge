@@ -105,4 +105,4 @@ run `./hoosatbridge` in the `cmd/hoosatbridge` directory
 
   
 
-all-in-one (build + run) `cd cmd/hoosatbridge/;go build .;./hoosatbridge`
+all-in-one (build + run) `cd cmd/htnbridge/;go build .;./htnbridge`
