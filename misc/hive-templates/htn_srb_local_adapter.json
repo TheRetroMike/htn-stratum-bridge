@@ -2,7 +2,7 @@
     "isFavorite": false,
     "items": [
         {
-            "coin": "PYI",
+            "coin": "HTN",
             "pool_ssl": false,
             "dpool_ssl": false,
             "miner": "srbminer",
@@ -15,13 +15,13 @@
             "pool_geo": []
         },
         {
-            "coin": "PYI",
+            "coin": "HTN",
             "pool_ssl": false,
             "dpool_ssl": false,
             "miner": "custom",
             "miner_alt": "htn_bridge",
             "miner_config": {
-                "url": "YOUR_PYIPAD_NODE_IP_HERE:13110",
+                "url": "YOUR_HTND_NODE_IP_HERE:13110",
                 "miner": "htn_bridge",
                 "template": "doesnt.matter",
                 "install_url": "https://github.com/Hoosat-Oy/htnd-stratum-bridge/releases/download/v0.13.4/htn_bridge-0.13.4_hive.tar.gz"

@@ -394,13 +394,13 @@
             "uid": "wFbInMnVk"
           },
           "editorMode": "code",
-          "expr": "coin_price{currency=\"pyi\"}",
-          "legendFormat": "USD/PYI",
+          "expr": "coin_price{currency=\"htn\"}",
+          "legendFormat": "USD/HTN",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "PYI Price",
+      "title": "HTN Price",
       "type": "stat"
     },
     {
@@ -2145,7 +2145,7 @@
       {
         "current": {
           "selected": true,
-          "text": "PYI",
+          "text": "HTN",
           "value": "1"
         },
         "hide": 0,
@@ -2160,7 +2160,7 @@
           },
           {
             "selected": true,
-            "text": "PYI",
+            "text": "HTN",
             "value": "1"
           },
           {
@@ -2169,7 +2169,7 @@
             "value": "0"
           }
         ],
-        "query": "USD : 2, PYI : 1, Hide : 0",
+        "query": "USD : 2, HTN : 1, Hide : 0",
         "queryValue": "",
         "skipUrlSync": false,
         "type": "custom"
