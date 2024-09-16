@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/Hoosat-Oy/HTND/app/appmessage"
 	"github.com/Hoosat-Oy/htn-stratum-bridge/src/gostratum"
-	"github.com/Hoosat-Oy/htnd/app/appmessage"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -120,7 +120,7 @@ func RecordBlockFound(worker *gostratum.StratumContext, nonce, bluescore uint64,
 	labels := commonLabels(worker)
 	labels["nonce"] = fmt.Sprintf("%d", nonce)
 	labels["bluescore"] = fmt.Sprintf("%d", bluescore)
-	labels["hash"] = fmt.Sprintf("%d", hash)
+	labels["hash"] = fmt.Sprintf("%s", hash)
 	blockGauge.With(labels).Set(1)
 }
 

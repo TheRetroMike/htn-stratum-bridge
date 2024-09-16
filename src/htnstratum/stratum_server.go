@@ -17,15 +17,16 @@ const version = "v1.1.6"
 const minBlockWaitTime = 500 * time.Millisecond
 
 type BridgeConfig struct {
-	StratumPort     string        `yaml:"stratum_port"`
-	RPCServer       string        `yaml:"hoosat_address"`
-	PromPort        string        `yaml:"prom_port"`
-	PrintStats      bool          `yaml:"print_stats"`
-	UseLogFile      bool          `yaml:"log_to_file"`
-	HealthCheckPort string        `yaml:"health_check_port"`
-	BlockWaitTime   time.Duration `yaml:"block_wait_time"`
-	MinShareDiff    uint          `yaml:"min_share_diff"`
-	ExtranonceSize  uint          `yaml:"extranonce_size"`
+	StratumPort       string        `yaml:"stratum_port"`
+	RPCServer         string        `yaml:"hoosat_address"`
+	PromPort          string        `yaml:"prom_port"`
+	PrintStats        bool          `yaml:"print_stats"`
+	UseLogFile        bool          `yaml:"log_to_file"`
+	HealthCheckPort   string        `yaml:"health_check_port"`
+	BlockWaitTime     time.Duration `yaml:"block_wait_time"`
+	MinShareDiff      uint          `yaml:"min_share_diff"`
+	ExtranonceSize    uint          `yaml:"extranonce_size"`
+	MineWhenNotSynced bool          `yaml:"mine_when_not_synced"`
 }
 
 func configureZap(cfg BridgeConfig) (*zap.SugaredLogger, func()) {
@@ -63,7 +64,7 @@ func ListenAndServe(cfg BridgeConfig) error {
 	if blockWaitTime < minBlockWaitTime {
 		blockWaitTime = minBlockWaitTime
 	}
-	pyApi, err := NewHoosatAPI(cfg.RPCServer, blockWaitTime, logger)
+	htnApi, err := NewHoosatAPI(cfg.RPCServer, blockWaitTime, logger)
 	if err != nil {
 		return err
 	}
@@ -76,7 +77,7 @@ func ListenAndServe(cfg BridgeConfig) error {
 		go http.ListenAndServe(cfg.HealthCheckPort, nil)
 	}
 
-	shareHandler := newShareHandler(pyApi.hoosat)
+	shareHandler := newShareHandler(htnApi.hoosat)
 	minDiff := cfg.MinShareDiff
 	if minDiff < 1 {
 		minDiff = 1
@@ -106,8 +107,8 @@ func ListenAndServe(cfg BridgeConfig) error {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	pyApi.Start(ctx, func() {
-		clientHandler.NewBlockAvailable(pyApi)
+	htnApi.Start(ctx, cfg, func() {
+		clientHandler.NewBlockAvailable(htnApi)
 	})
 
 	if cfg.PrintStats {

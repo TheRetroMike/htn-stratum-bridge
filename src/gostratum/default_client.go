@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/Hoosat-Oy/htnd/util"
+	"github.com/Hoosat-Oy/HTND/util"
 	"github.com/mattn/go-colorable"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -111,20 +111,27 @@ func SendExtranonce(ctx *StratumContext) {
 	}
 }
 
-var walletRegex = regexp.MustCompile("hoosat:[a-z0-9]+")
+var walletRegex = regexp.MustCompile("(hoosat|hoosattest):[a-z0-9]+")
 
 func CleanWallet(in string) (string, error) {
+	// Check if the input has a valid address for either prefix
 	_, err := util.DecodeAddress(in, util.Bech32PrefixHoosat)
 	if err == nil {
-		return in, nil // good to go
+		return in, nil // valid hoosat address
 	}
-	if !strings.HasPrefix(in, "hoosat:") {
+	_, err = util.DecodeAddress(in, util.Bech32PrefixHoosatTest)
+	if err == nil {
+		return in, nil // valid hoosattest address
+	}
+
+	// Add prefix if it's missing, default to "hoosat:"
+	if !strings.HasPrefix(in, "hoosat:") && !strings.HasPrefix(in, "hoosattest:") {
 		return CleanWallet("hoosat:" + in)
 	}
 
-	// has hoosat: prefix but other weirdness somewhere
+	// Validate and extract correct address format
 	if walletRegex.MatchString(in) {
-		return in[0:68], nil
+		return in[0:61], nil
 	}
-	return "", errors.New("unable to coerce wallet to valid hoosat address")
+	return "", errors.New("unable to coerce wallet to valid hoosat or hoosattest address")
 }

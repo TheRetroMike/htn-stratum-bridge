@@ -83,7 +83,7 @@ func (c *clientListener) OnDisconnect(ctx *gostratum.StratumContext) {
 	RecordDisconnect(ctx)
 }
 
-func (c *clientListener) NewBlockAvailable(kapi *HtnApi) {
+func (c *clientListener) NewBlockAvailable(htnApi *HtnApi) {
 	c.clientLock.Lock()
 	addresses := make([]string, 0, len(c.clients))
 	for _, cl := range c.clients {
@@ -101,7 +101,7 @@ func (c *clientListener) NewBlockAvailable(kapi *HtnApi) {
 				}
 				return
 			}
-			template, err := kapi.GetBlockTemplate(client)
+			template, err := htnApi.GetBlockTemplate(client)
 			if err != nil {
 				if strings.Contains(err.Error(), "Could not decode address") {
 					RecordWorkerError(client.WalletAddr, ErrInvalidAddressFmt)
@@ -175,7 +175,7 @@ func (c *clientListener) NewBlockAvailable(kapi *HtnApi) {
 		c.lastBalanceCheck = time.Now()
 		if len(addresses) > 0 {
 			go func() {
-				balances, err := kapi.hoosat.GetBalancesByAddresses(addresses)
+				balances, err := htnApi.hoosat.GetBalancesByAddresses(addresses)
 				if err != nil {
 					c.logger.Warn("failed to get balances from hoosat, prom stats will be out of date", zap.Error(err))
 					return

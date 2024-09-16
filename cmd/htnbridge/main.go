@@ -28,6 +28,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	cfg.MineWhenNotSynced = false
+
 	flag.StringVar(&cfg.StratumPort, "stratum", cfg.StratumPort, "stratum port to listen on, default `:5555`")
 	flag.BoolVar(&cfg.PrintStats, "stats", cfg.PrintStats, "true to show periodic stats to console, default `true`")
 	flag.StringVar(&cfg.RPCServer, "hoosat", cfg.RPCServer, "address of the hoosat node, default `localhost:13110`")
@@ -37,6 +39,7 @@ func main() {
 	flag.StringVar(&cfg.PromPort, "prom", cfg.PromPort, "address to serve prom stats, default `:2112`")
 	flag.BoolVar(&cfg.UseLogFile, "log", cfg.UseLogFile, "if true will output errors to log file, default `true`")
 	flag.StringVar(&cfg.HealthCheckPort, "hcp", cfg.HealthCheckPort, `(rarely used) if defined will expose a health check on /readyz, default ""`)
+	flag.BoolVar(&cfg.MineWhenNotSynced, "mwns", cfg.MineWhenNotSynced, `(rarely used) will skip checking if node is synced. ""`)
 	flag.Parse()
 
 	if cfg.MinShareDiff == 0 {

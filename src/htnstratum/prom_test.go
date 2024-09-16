@@ -3,8 +3,8 @@ package htnstratum
 import (
 	"testing"
 
+	"github.com/Hoosat-Oy/HTND/app/appmessage"
 	"github.com/Hoosat-Oy/htn-stratum-bridge/src/gostratum"
-	"github.com/Hoosat-Oy/htnd/app/appmessage"
 )
 
 func TestPromValid(t *testing.T) {
