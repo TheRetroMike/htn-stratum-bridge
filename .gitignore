@@ -28,4 +28,6 @@ __debug_bin
 
 cmd/htnbridge/htnbridge
 cmd/htnbridge/bridge.log
+cmd/htnbridge/htn-stratum-bridge-1.0.0-linux.zip
+cmd/htnbridge/htn-stratum-bridge-1.0.0-linux.sha1
 release/

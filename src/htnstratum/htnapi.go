@@ -133,7 +133,6 @@ func (htnApi *HtnApi) startBlockTemplateListener(ctx context.Context, blockReady
 
 func (htnApi *HtnApi) GetBlockTemplate(
 	client *gostratum.StratumContext) (*appmessage.GetBlockTemplateResponseMessage, error) {
-	fmt.Printf("Wallet Address on GetBlockTemplate: %s\n", client.WalletAddr)
 	template, err := htnApi.hoosat.GetBlockTemplate(client.WalletAddr,
 		fmt.Sprintf(`'%s' via htn-stratum-bridge_%s`, client.RemoteApp, version))
 	if err != nil {
