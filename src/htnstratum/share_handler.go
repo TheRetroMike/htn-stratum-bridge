@@ -188,7 +188,7 @@ func (sh *shareHandler) HandleSubmit(ctx *gostratum.StratumContext, event gostra
 	stats := sh.getCreateStats(ctx)
 	if err := sh.checkStales(ctx, submitInfo); err != nil {
 		if err == ErrDupeShare {
-			ctx.Logger.Warn("duplicate share: "+submitInfo.noncestr)
+			ctx.Logger.Warn("duplicate share: " + submitInfo.noncestr)
 			RecordDupeShare(ctx)
 			stats.InvalidShares.Add(1)
 			sh.overall.InvalidShares.Add(1)
@@ -304,6 +304,9 @@ func (sh *shareHandler) startStatsThread() error {
 		var lines []string
 		totalRate := float64(0)
 		for _, v := range sh.stats {
+			if v.WorkerName == "" {
+				continue
+			}
 			rate := GetAverageHashrateGHs(v)
 			totalRate += rate
 			rateStr := stringifyHashrate(rate)
@@ -313,11 +316,11 @@ func (sh *shareHandler) startStatsThread() error {
 		}
 		sort.Strings(lines)
 		str += strings.Join(lines, "\n")
-		rateStr := fmt.Sprintf("%0.2fGH/s", totalRate) // todo, fix units
+		rateStr := stringifyHashrate(totalRate)
 		ratioStr := fmt.Sprintf("%d/%d/%d", sh.overall.SharesFound.Load(), sh.overall.StaleShares.Load(), sh.overall.InvalidShares.Load())
 		str += "\n-------------------------------------------------------------------------------\n"
 		str += fmt.Sprintf("                | %14.14s | %14.14s | %12d | %11s",
-		rateStr, ratioStr, sh.overall.BlocksFound.Load(), time.Since(start).Round(time.Second))
+			rateStr, ratioStr, sh.overall.BlocksFound.Load(), time.Since(start).Round(time.Second))
 		str += "\n-------------------------------------------------------------------------------\n"
 		str += " Est. Network Hashrate: " + stringifyHashrate(DiffToHash(sh.soloDiff))
 		str += "\n========================================================== htn_bridge_" + version + " ===\n"
@@ -338,7 +341,7 @@ func stringifyHashrate(ghs float64) string {
 	if ghs*1000000 < 1 {
 		hr = ghs * 1000 * 1000 * 1000
 		unit = unitStrings[0]
-	} else if ghs * 1000 < 1 {
+	} else if ghs*1000 < 1 {
 		hr = ghs * 1000 * 1000
 		unit = unitStrings[1]
 	} else if ghs < 1 {
