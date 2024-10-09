@@ -13,20 +13,24 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-const version = "v1.1.6"
+const version = "v1.1.7"
 const minBlockWaitTime = 500 * time.Millisecond
 
 type BridgeConfig struct {
-	StratumPort       string        `yaml:"stratum_port"`
-	RPCServer         string        `yaml:"hoosat_address"`
-	PromPort          string        `yaml:"prom_port"`
-	PrintStats        bool          `yaml:"print_stats"`
-	UseLogFile        bool          `yaml:"log_to_file"`
-	HealthCheckPort   string        `yaml:"health_check_port"`
-	BlockWaitTime     time.Duration `yaml:"block_wait_time"`
-	MinShareDiff      uint          `yaml:"min_share_diff"`
-	ExtranonceSize    uint          `yaml:"extranonce_size"`
-	MineWhenNotSynced bool          `yaml:"mine_when_not_synced"`
+	StratumPort     string        `yaml:"stratum_port"`
+	RPCServer       string        `yaml:"hoosat_address"`
+	PromPort        string        `yaml:"prom_port"`
+	PrintStats      bool          `yaml:"print_stats"`
+	UseLogFile      bool          `yaml:"log_to_file"`
+	HealthCheckPort string        `yaml:"health_check_port"`
+	SoloMining      bool          `yaml:"solo_mining"`
+	BlockWaitTime   time.Duration `yaml:"block_wait_time"`
+	MinShareDiff    float64       `yaml:"min_share_diff"`
+	VarDiff         bool          `yaml:"var_diff"`
+	SharesPerMin    uint          `yaml:"shares_per_min"`
+	VarDiffStats    bool          `yaml:"var_diff_stats"`
+	ExtranonceSize  uint          `yaml:"extranonce_size"`
+	MineWhenNotSynced bool				`yaml:"mine_when_not_synced"`
 }
 
 func configureZap(cfg BridgeConfig) (*zap.SugaredLogger, func()) {
@@ -79,19 +83,19 @@ func ListenAndServe(cfg BridgeConfig) error {
 
 	shareHandler := newShareHandler(htnApi.hoosat)
 	minDiff := cfg.MinShareDiff
-	if minDiff < 1 {
-		minDiff = 1
+	if minDiff == 0 {
+		minDiff = 4
 	}
 	extranonceSize := cfg.ExtranonceSize
 	if extranonceSize > 3 {
 		extranonceSize = 3
 	}
-	clientHandler := newClientListener(logger, shareHandler, float64(minDiff), int8(extranonceSize))
+	clientHandler := newClientListener(logger, shareHandler, minDiff, int8(extranonceSize))
 	handlers := gostratum.DefaultHandlers()
 	// override the submit handler with an actual useful handler
 	handlers[string(gostratum.StratumMethodSubmit)] =
 		func(ctx *gostratum.StratumContext, event gostratum.JsonRpcEvent) error {
-			if err := shareHandler.HandleSubmit(ctx, event); err != nil {
+			if err := shareHandler.HandleSubmit(ctx, event, cfg.SoloMining); err != nil {
 				ctx.Logger.Sugar().Error(err) // sink error
 			}
 			return nil
@@ -108,8 +112,12 @@ func ListenAndServe(cfg BridgeConfig) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	htnApi.Start(ctx, cfg, func() {
-		clientHandler.NewBlockAvailable(htnApi)
+		clientHandler.NewBlockAvailable(htnApi, cfg.SoloMining)
 	})
+
+	if cfg.VarDiff || cfg.SoloMining {
+		go shareHandler.startVardiffThread(cfg.SharesPerMin, cfg.VarDiffStats)
+	}
 
 	if cfg.PrintStats {
 		go shareHandler.startStatsThread()
