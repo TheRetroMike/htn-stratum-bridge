@@ -304,10 +304,10 @@ func (sh *shareHandler) startStatsThread() error {
 		var lines []string
 		totalRate := float64(0)
 		for _, v := range sh.stats {
-			if v.WorkerName == "" {
+			rate := GetAverageHashrateGHs(v)
+			if v.WorkerName == "" && rate == 0 {
 				continue
 			}
-			rate := GetAverageHashrateGHs(v)
 			totalRate += rate
 			rateStr := stringifyHashrate(rate)
 			ratioStr := fmt.Sprintf("%d/%d/%d", v.SharesFound.Load(), v.StaleShares.Load(), v.InvalidShares.Load())
