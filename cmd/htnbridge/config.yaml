@@ -5,14 +5,14 @@ stratum_port: :5555
 # hoosat_address: address/port of the rpc server for hoosat, typically 13110
 # For a list of public nodes, run `nslookup mainnet-dnsseed.daglabs-dev.com`
 # uncomment for to use a public node
-hoosat_address: localhost:42420
+hoosat_address: mainnet-node-1.hoosat.fi:42420
 
 # min_share_diff: only accept shares of the specified difficulty (or higher) from
 # the miner(s).  Higher values will reduce the number of shares submitted, thereby
 # reducing network traffic and server load, while lower values will increase the
 # number of shares submitted, thereby reducing the amount of time needed for
 # accurate hashrate measurements
-# min_share_diff: 4
+min_share_diff: 0.0001
 
 # block_wait_time: time to wait since last new block message from hoosat before
 # manually requesting a new block

@@ -55,6 +55,14 @@ func DiffToHash(diff float64) float64 {
 	return h
 }
 
+func TargetToDiff(target *big.Int) float64 {
+	targetFloat := new(big.Float).SetInt(target)
+	diff := new(big.Float).Quo(maxTarget, targetFloat)
+
+	diffFloat, _ := diff.Float64()
+	return diffFloat
+}
+
 func SerializeBlockHeader(template *appmessage.RPCBlock) ([]byte, error) {
 	var fixedSizeKey [32]byte
 	copy(fixedSizeKey[:], "BlockHash")
