@@ -13,24 +13,24 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-const version = "v1.1.7"
+const version = "v1.1.8"
 const minBlockWaitTime = 500 * time.Millisecond
 
 type BridgeConfig struct {
-	StratumPort     string        `yaml:"stratum_port"`
-	RPCServer       string        `yaml:"hoosat_address"`
-	PromPort        string        `yaml:"prom_port"`
-	PrintStats      bool          `yaml:"print_stats"`
-	UseLogFile      bool          `yaml:"log_to_file"`
-	HealthCheckPort string        `yaml:"health_check_port"`
-	SoloMining      bool          `yaml:"solo_mining"`
-	BlockWaitTime   time.Duration `yaml:"block_wait_time"`
-	MinShareDiff    float64       `yaml:"min_share_diff"`
-	VarDiff         bool          `yaml:"var_diff"`
-	SharesPerMin    uint          `yaml:"shares_per_min"`
-	VarDiffStats    bool          `yaml:"var_diff_stats"`
-	ExtranonceSize  uint          `yaml:"extranonce_size"`
-	MineWhenNotSynced bool				`yaml:"mine_when_not_synced"`
+	StratumPort       string        `yaml:"stratum_port"`
+	RPCServer         string        `yaml:"hoosat_address"`
+	PromPort          string        `yaml:"prom_port"`
+	PrintStats        bool          `yaml:"print_stats"`
+	UseLogFile        bool          `yaml:"log_to_file"`
+	HealthCheckPort   string        `yaml:"health_check_port"`
+	SoloMining        bool          `yaml:"solo_mining"`
+	BlockWaitTime     time.Duration `yaml:"block_wait_time"`
+	MinShareDiff      float64       `yaml:"min_share_diff"`
+	VarDiff           bool          `yaml:"var_diff"`
+	SharesPerMin      uint          `yaml:"shares_per_min"`
+	VarDiffStats      bool          `yaml:"var_diff_stats"`
+	ExtranonceSize    uint          `yaml:"extranonce_size"`
+	MineWhenNotSynced bool          `yaml:"mine_when_not_synced"`
 }
 
 func configureZap(cfg BridgeConfig) (*zap.SugaredLogger, func()) {
