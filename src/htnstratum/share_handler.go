@@ -94,7 +94,7 @@ type submitInfo struct {
 	state    *MiningState
 	noncestr string
 	nonceVal uint64
-	pownum   *big.Int
+	powNum   *big.Int
 }
 
 func validateSubmit(ctx *gostratum.StratumContext, event gostratum.JsonRpcEvent) (*submitInfo, error) {
@@ -125,19 +125,19 @@ func validateSubmit(ctx *gostratum.StratumContext, event gostratum.JsonRpcEvent)
 	}
 	// We expect the 4th parameter to be hexadecimal representation of the
 	// proof of work hash big.int value, which can be compared to the target.
-	pownumstr, ok := event.Params[3].(string)
+	powNumStr, ok := event.Params[3].(string)
 	if !ok {
 		RecordWorkerError(ctx.WalletAddr, ErrBadDataFromMiner)
 		return nil, fmt.Errorf("unexpected type for param 2: %+v", event.Params...)
 	}
-	pownum := new(big.Int)
-	pownum.SetString(pownumstr, 16)
+	powNum := new(big.Int)
+	powNum.SetString(powNumStr, 16)
 
 	return &submitInfo{
 		state:    state,
 		block:    block,
 		noncestr: strings.Replace(noncestr, "0x", "", 1),
-		pownum:   pownum,
+		powNum:   powNum,
 	}, nil
 }
 
@@ -228,12 +228,12 @@ func (sh *shareHandler) HandleSubmit(ctx *gostratum.StratumContext, event gostra
 	recalculatedPowNum := powState.CalculateProofOfWorkValue()
 
 	// The block hash must be less or equal than the claimed target.
-	if submitInfo.pownum == recalculatedPowNum {
-		if submitInfo.pownum.Cmp(&powState.Target) <= 0 {
-			if err := sh.submit(ctx, converted, submitInfo.pownum, submitInfo.nonceVal, event.Id); err != nil {
+	if submitInfo.powNum == recalculatedPowNum {
+		if submitInfo.powNum.Cmp(&powState.Target) <= 0 {
+			if err := sh.submit(ctx, converted, submitInfo.powNum, submitInfo.nonceVal, event.Id); err != nil {
 				return err
 			}
-		} else if submitInfo.pownum.Cmp(state.stratumDiff.targetValue) >= 0 {
+		} else if submitInfo.powNum.Cmp(state.stratumDiff.targetValue) >= 0 {
 			if soloMining {
 				ctx.Logger.Warn("weak block")
 			} else {
