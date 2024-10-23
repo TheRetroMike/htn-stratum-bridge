@@ -272,9 +272,7 @@ func (sh *shareHandler) submit(ctx *gostratum.StratumContext,
 		Header:       mutable.ToImmutable(),
 		Transactions: block.Transactions,
 	}
-	_, err := sh.hoosat.SubmitBlock(block)
-	// TODO: Replace this when SubmitBlock allows sending powNum.
-	// _, err := sh.hoosat.SubmitBlock(block, powNum)
+	_, err := sh.hoosat.SubmitBlock(block, powNum)
 	blockhash := consensushashing.BlockHash(block)
 	// print after the submit to get it submitted faster
 	ctx.Logger.Info(fmt.Sprintf("Submitted block %s %s", blockhash, powNum))
