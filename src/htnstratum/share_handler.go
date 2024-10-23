@@ -250,6 +250,11 @@ func (sh *shareHandler) HandleSubmit(ctx *gostratum.StratumContext, event gostra
 			RecordWeakShare(ctx)
 			return ctx.ReplyLowDiffShare(event.Id)
 		}
+	} else {
+		stats.InvalidShares.Add(1)
+		sh.overall.InvalidShares.Add(1)
+		ctx.Logger.Warn("Incorrect proof of work")
+		return errors.New("Incorrect proof of work")
 	}
 
 	stats.SharesFound.Add(1)
