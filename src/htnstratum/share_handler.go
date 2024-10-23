@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"math/big"
 	"sort"
 	"strconv"
 	"strings"
@@ -93,10 +94,11 @@ type submitInfo struct {
 	state    *MiningState
 	noncestr string
 	nonceVal uint64
+	pownum   *big.Int
 }
 
 func validateSubmit(ctx *gostratum.StratumContext, event gostratum.JsonRpcEvent) (*submitInfo, error) {
-	if len(event.Params) < 3 {
+	if len(event.Params) < 4 {
 		RecordWorkerError(ctx.WalletAddr, ErrBadDataFromMiner)
 		return nil, fmt.Errorf("malformed event, expected at least 2 params")
 	}
@@ -121,10 +123,21 @@ func validateSubmit(ctx *gostratum.StratumContext, event gostratum.JsonRpcEvent)
 		RecordWorkerError(ctx.WalletAddr, ErrBadDataFromMiner)
 		return nil, fmt.Errorf("unexpected type for param 2: %+v", event.Params...)
 	}
+	// We expect the 4th parameter to be hexadecimal representation of the
+	// proof of work hash big.int value, which can be compared to the target.
+	pownumstr, ok := event.Params[3].(string)
+	if !ok {
+		RecordWorkerError(ctx.WalletAddr, ErrBadDataFromMiner)
+		return nil, fmt.Errorf("unexpected type for param 2: %+v", event.Params...)
+	}
+	pownum := new(big.Int)
+	pownum.SetString(pownumstr, 16)
+
 	return &submitInfo{
 		state:    state,
 		block:    block,
 		noncestr: strings.Replace(noncestr, "0x", "", 1),
+		pownum:   pownum,
 	}, nil
 }
 
@@ -212,29 +225,31 @@ func (sh *shareHandler) HandleSubmit(ctx *gostratum.StratumContext, event gostra
 	mutableHeader := converted.Header.ToMutable()
 	mutableHeader.SetNonce(submitInfo.nonceVal)
 	powState := pow.NewState(mutableHeader)
-	powValue := powState.CalculateProofOfWorkValue()
+	recalculatedPowNum := powState.CalculateProofOfWorkValue()
 
 	// The block hash must be less or equal than the claimed target.
-	if powValue.Cmp(&powState.Target) <= 0 {
-		if err := sh.submit(ctx, converted, submitInfo.nonceVal, event.Id); err != nil {
-			return err
+	if submitInfo.pownum == recalculatedPowNum {
+		if submitInfo.pownum.Cmp(&powState.Target) <= 0 {
+			if err := sh.submit(ctx, converted, submitInfo.pownum, submitInfo.nonceVal, event.Id); err != nil {
+				return err
+			}
+		} else if submitInfo.pownum.Cmp(state.stratumDiff.targetValue) >= 0 {
+			if soloMining {
+				ctx.Logger.Warn("weak block")
+			} else {
+				ctx.Logger.Warn("weak share")
+			}
+			// ctx.Logger.Warn(fmt.Sprintf("Net Target: %s\n", powState.Target.String()))
+			// ctx.Logger.Warn(fmt.Sprintf("Stratum Target: %s\n", state.stratumDiff.targetValue.String()))
+			// ctx.Logger.Warn(fmt.Sprintf("Stratum Target Hex: %064x\n", state.stratumDiff.targetValue.Bytes()))
+			// ctx.Logger.Warn(fmt.Sprintf("Nonce: %d\n", submitInfo.nonceVal))
+			// ctx.Logger.Warn(fmt.Sprintf("Nonce Hex: %016x\n", submitInfo.nonceVal))
+			// ctx.Logger.Warn(fmt.Sprintf("powNum: %064x\n", powNum.Bytes()))
+			stats.InvalidShares.Add(1)
+			sh.overall.InvalidShares.Add(1)
+			RecordWeakShare(ctx)
+			return ctx.ReplyLowDiffShare(event.Id)
 		}
-	} else if powValue.Cmp(state.stratumDiff.targetValue) >= 0 {
-		if soloMining {
-			ctx.Logger.Warn("weak block")
-		} else {
-			ctx.Logger.Warn("weak share")
-		}
-		// ctx.Logger.Warn(fmt.Sprintf("Net Target: %s\n", powState.Target.String()))
-		// ctx.Logger.Warn(fmt.Sprintf("Stratum Target: %s\n", state.stratumDiff.targetValue.String()))
-		// ctx.Logger.Warn(fmt.Sprintf("Stratum Target Hex: %064x\n", state.stratumDiff.targetValue.Bytes()))
-		// ctx.Logger.Warn(fmt.Sprintf("Nonce: %d\n", submitInfo.nonceVal))
-		// ctx.Logger.Warn(fmt.Sprintf("Nonce Hex: %016x\n", submitInfo.nonceVal))
-		// ctx.Logger.Warn(fmt.Sprintf("PowValue: %064x\n", powValue.Bytes()))
-		stats.InvalidShares.Add(1)
-		sh.overall.InvalidShares.Add(1)
-		RecordWeakShare(ctx)
-		return ctx.ReplyLowDiffShare(event.Id)
 	}
 
 	stats.SharesFound.Add(1)
@@ -250,7 +265,7 @@ func (sh *shareHandler) HandleSubmit(ctx *gostratum.StratumContext, event gostra
 }
 
 func (sh *shareHandler) submit(ctx *gostratum.StratumContext,
-	block *externalapi.DomainBlock, nonce uint64, eventId any) error {
+	block *externalapi.DomainBlock, powNum *big.Int, nonce uint64, eventId any) error {
 	mutable := block.Header.ToMutable()
 	mutable.SetNonce(nonce)
 	block = &externalapi.DomainBlock{
@@ -258,9 +273,11 @@ func (sh *shareHandler) submit(ctx *gostratum.StratumContext,
 		Transactions: block.Transactions,
 	}
 	_, err := sh.hoosat.SubmitBlock(block)
+	// TODO: Replace this when SubmitBlock allows sending powNum.
+	// _, err := sh.hoosat.SubmitBlock(block, powNum)
 	blockhash := consensushashing.BlockHash(block)
 	// print after the submit to get it submitted faster
-	ctx.Logger.Info(fmt.Sprintf("Submitted block %s", blockhash))
+	ctx.Logger.Info(fmt.Sprintf("Submitted block %s %s", blockhash, powNum))
 
 	if err != nil {
 		// :'(
