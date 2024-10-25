@@ -242,8 +242,8 @@ func (sh *shareHandler) HandleSubmit(ctx *gostratum.StratumContext, event gostra
 	submittedPowNum := toBig(submitInfo.powHash)
 
 	// The block hash must be less or equal than the claimed target.
-	fmt.Printf("%s\r\n", submittedPowNum)
-	fmt.Printf("%s\r\n", recalculatedPowNum)
+	//fmt.Printf("%s\r\n", submittedPowNum)
+	//fmt.Printf("%s\r\n", recalculatedPowNum)
 	if submittedPowNum.Cmp(recalculatedPowNum) == 0 {
 		if submittedPowNum.Cmp(&powState.Target) <= 0 {
 			if err := sh.submit(ctx, converted, submitInfo.powHash, submitInfo.nonceVal, event.Id); err != nil {

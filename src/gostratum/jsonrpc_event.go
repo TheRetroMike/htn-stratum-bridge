@@ -2,7 +2,6 @@ package gostratum
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 type JsonRpcEvent struct {
@@ -43,7 +42,7 @@ func NewResponse(event JsonRpcEvent, results any, err []any) JsonRpcResponse {
 }
 
 func UnmarshalEvent(in string) (JsonRpcEvent, error) {
-	fmt.Printf("%s\r\n", in)
+	// fmt.Printf("%s\r\n", in)
 	event := JsonRpcEvent{}
 	if err := json.Unmarshal([]byte(in), &event); err != nil {
 		return JsonRpcEvent{}, err
