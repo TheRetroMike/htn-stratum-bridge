@@ -13,6 +13,7 @@ import (
 
 	"github.com/Hoosat-Oy/HTND/app/appmessage"
 	"github.com/Hoosat-Oy/HTND/domain/consensus/model/externalapi"
+
 	"github.com/Hoosat-Oy/HTND/domain/consensus/utils/consensushashing"
 	"github.com/Hoosat-Oy/HTND/domain/consensus/utils/pow"
 	"github.com/Hoosat-Oy/HTND/infrastructure/network/rpcclient"
@@ -94,7 +95,18 @@ type submitInfo struct {
 	state    *MiningState
 	noncestr string
 	nonceVal uint64
-	powNum   *big.Int
+	powHash  *externalapi.DomainHash
+}
+
+// ToBig converts a externalapi.DomainHash into a big.Int treated as a little endian string.
+func toBig(hash *externalapi.DomainHash) *big.Int {
+	// We treat the Hash as little-endian for PoW purposes, but the big package wants the bytes in big-endian, so reverse them.
+	buf := hash.ByteSlice()
+	blen := len(buf)
+	for i := 0; i < blen/2; i++ {
+		buf[i], buf[blen-1-i] = buf[blen-1-i], buf[i]
+	}
+	return new(big.Int).SetBytes(buf)
 }
 
 func validateSubmit(ctx *gostratum.StratumContext, event gostratum.JsonRpcEvent) (*submitInfo, error) {
@@ -123,21 +135,22 @@ func validateSubmit(ctx *gostratum.StratumContext, event gostratum.JsonRpcEvent)
 		RecordWorkerError(ctx.WalletAddr, ErrBadDataFromMiner)
 		return nil, fmt.Errorf("unexpected type for param 2: %+v", event.Params...)
 	}
-	// We expect the 4th parameter to be hexadecimal representation of the
-	// proof of work hash big.int value, which can be compared to the target.
 	powNumStr, ok := event.Params[3].(string)
 	if !ok {
 		RecordWorkerError(ctx.WalletAddr, ErrBadDataFromMiner)
-		return nil, fmt.Errorf("unexpected type for param 2: %+v", event.Params...)
+		return nil, fmt.Errorf("unexpected type for param 3: %+v", event.Params...)
 	}
-	powNum := new(big.Int)
-	powNum.SetString(powNumStr, 16)
+	powHash, err := externalapi.NewDomainHashFromString(strings.Replace(powNumStr, "0x", "", 1))
+	if err != nil {
+		RecordWorkerError(ctx.WalletAddr, ErrBadDataFromMiner)
+		return nil, fmt.Errorf("unexpected error for param 3: %w", err)
+	}
 
 	return &submitInfo{
 		state:    state,
 		block:    block,
 		noncestr: strings.Replace(noncestr, "0x", "", 1),
-		powNum:   powNum,
+		powHash:  powHash,
 	}, nil
 }
 
@@ -226,14 +239,17 @@ func (sh *shareHandler) HandleSubmit(ctx *gostratum.StratumContext, event gostra
 	mutableHeader.SetNonce(submitInfo.nonceVal)
 	powState := pow.NewState(mutableHeader)
 	recalculatedPowNum := powState.CalculateProofOfWorkValue()
+	submittedPowNum := toBig(submitInfo.powHash)
 
 	// The block hash must be less or equal than the claimed target.
-	if submitInfo.powNum == recalculatedPowNum {
-		if submitInfo.powNum.Cmp(&powState.Target) <= 0 {
-			if err := sh.submit(ctx, converted, submitInfo.powNum, submitInfo.nonceVal, event.Id); err != nil {
+	fmt.Printf("%s\r\n", submittedPowNum)
+	fmt.Printf("%s\r\n", recalculatedPowNum)
+	if submittedPowNum.Cmp(recalculatedPowNum) == 0 {
+		if submittedPowNum.Cmp(&powState.Target) <= 0 {
+			if err := sh.submit(ctx, converted, submitInfo.powHash, submitInfo.nonceVal, event.Id); err != nil {
 				return err
 			}
-		} else if submitInfo.powNum.Cmp(state.stratumDiff.targetValue) >= 0 {
+		} else if submittedPowNum.Cmp(state.stratumDiff.targetValue) >= 0 {
 			if soloMining {
 				ctx.Logger.Warn("weak block")
 			} else {
@@ -253,8 +269,7 @@ func (sh *shareHandler) HandleSubmit(ctx *gostratum.StratumContext, event gostra
 	} else {
 		stats.InvalidShares.Add(1)
 		sh.overall.InvalidShares.Add(1)
-		ctx.Logger.Warn("Incorrect proof of work")
-		return errors.New("Incorrect proof of work")
+		return errors.New("Incorrect proof of work:")
 	}
 
 	stats.SharesFound.Add(1)
@@ -270,17 +285,17 @@ func (sh *shareHandler) HandleSubmit(ctx *gostratum.StratumContext, event gostra
 }
 
 func (sh *shareHandler) submit(ctx *gostratum.StratumContext,
-	block *externalapi.DomainBlock, powNum *big.Int, nonce uint64, eventId any) error {
+	block *externalapi.DomainBlock, powHash *externalapi.DomainHash, nonce uint64, eventId any) error {
 	mutable := block.Header.ToMutable()
 	mutable.SetNonce(nonce)
 	block = &externalapi.DomainBlock{
 		Header:       mutable.ToImmutable(),
 		Transactions: block.Transactions,
 	}
-	_, err := sh.hoosat.SubmitBlock(block, powNum)
+	_, err := sh.hoosat.SubmitBlock(block, powHash)
 	blockhash := consensushashing.BlockHash(block)
 	// print after the submit to get it submitted faster
-	ctx.Logger.Info(fmt.Sprintf("Submitted block %s %s", blockhash, powNum))
+	ctx.Logger.Info(fmt.Sprintf("Submitted block %s %s", blockhash, powHash))
 
 	if err != nil {
 		// :'(
