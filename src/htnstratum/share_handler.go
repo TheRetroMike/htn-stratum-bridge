@@ -49,6 +49,36 @@ type shareHandler struct {
 	tipBlueScore uint64
 }
 
+type BanInfo struct {
+	Address string
+	Times   int
+}
+
+var bans = []BanInfo{}
+
+func AddressBanned(address string) bool {
+	for _, ban := range bans {
+		if ban.Address == address {
+			if ban.Times > 10 {
+				return true
+			} else {
+				return false
+			}
+		}
+	}
+	return false
+}
+
+func TryToBan(address string) {
+	for i, ban := range bans {
+		if ban.Address == address {
+			bans[i].Times++
+			return
+		}
+	}
+	bans = append(bans, BanInfo{Address: address, Times: 1})
+}
+
 func newShareHandler(hoosat *rpcclient.RPCClient) *shareHandler {
 	return &shareHandler{
 		hoosat:    hoosat,
@@ -238,12 +268,15 @@ func (sh *shareHandler) HandleSubmit(ctx *gostratum.StratumContext, event gostra
 	mutableHeader := converted.Header.ToMutable()
 	mutableHeader.SetNonce(submitInfo.nonceVal)
 	powState := pow.NewState(mutableHeader)
-	recalculatedPowNum := powState.CalculateProofOfWorkValue()
+	recalculatedPowNum, _ := powState.CalculateProofOfWorkValue()
 	submittedPowNum := toBig(submitInfo.powHash)
 
 	// The block hash must be less or equal than the claimed target.
 	//fmt.Printf("%s\r\n", submittedPowNum)
 	//fmt.Printf("%s\r\n", recalculatedPowNum)
+	if AddressBanned(ctx.WalletAddr) {
+		return errors.New(fmt.Sprintf("Address is banned: %s", ctx.WalletAddr))
+	}
 	if submittedPowNum.Cmp(recalculatedPowNum) == 0 {
 		if submittedPowNum.Cmp(&powState.Target) <= 0 {
 			if err := sh.submit(ctx, converted, submitInfo.powHash, submitInfo.nonceVal, event.Id); err != nil {
@@ -267,6 +300,8 @@ func (sh *shareHandler) HandleSubmit(ctx *gostratum.StratumContext, event gostra
 			return ctx.ReplyLowDiffShare(event.Id)
 		}
 	} else {
+		// Here we could instantly ban the worker, but we just try to ban.
+		TryToBan(ctx.WalletAddr)
 		stats.InvalidShares.Add(1)
 		sh.overall.InvalidShares.Add(1)
 		return errors.New("Incorrect proof of work:")
