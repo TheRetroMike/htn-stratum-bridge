@@ -268,15 +268,12 @@ func (sh *shareHandler) HandleSubmit(ctx *gostratum.StratumContext, event gostra
 	mutableHeader := converted.Header.ToMutable()
 	mutableHeader.SetNonce(submitInfo.nonceVal)
 	powState := pow.NewState(mutableHeader)
-	recalculatedPowNum, _ := powState.CalculateProofOfWorkValue()
+	recalculatedPowNum, recalculatedPowHash := powState.CalculateProofOfWorkValue()
 	submittedPowNum := toBig(submitInfo.powHash)
 
 	// The block hash must be less or equal than the claimed target.
 	//fmt.Printf("%s\r\n", submittedPowNum)
 	//fmt.Printf("%s\r\n", recalculatedPowNum)
-	if AddressBanned(ctx.WalletAddr) {
-		return errors.New(fmt.Sprintf("Address is banned: %s", ctx.WalletAddr))
-	}
 	if submittedPowNum.Cmp(recalculatedPowNum) == 0 {
 		if submittedPowNum.Cmp(&powState.Target) <= 0 {
 			if err := sh.submit(ctx, converted, submitInfo.powHash, submitInfo.nonceVal, event.Id); err != nil {
@@ -300,11 +297,9 @@ func (sh *shareHandler) HandleSubmit(ctx *gostratum.StratumContext, event gostra
 			return ctx.ReplyLowDiffShare(event.Id)
 		}
 	} else {
-		// Here we could instantly ban the worker, but we just try to ban.
-		TryToBan(ctx.WalletAddr)
 		stats.InvalidShares.Add(1)
 		sh.overall.InvalidShares.Add(1)
-		return errors.New("Incorrect proof of work:")
+		return errors.New(fmt.Sprintf("Incorrect proof of work %s %s:", recalculatedPowHash.String(), submitInfo.powHash))
 	}
 
 	stats.SharesFound.Add(1)
@@ -330,7 +325,7 @@ func (sh *shareHandler) submit(ctx *gostratum.StratumContext,
 	_, err := sh.hoosat.SubmitBlock(block, powHash)
 	blockhash := consensushashing.BlockHash(block)
 	// print after the submit to get it submitted faster
-	ctx.Logger.Info(fmt.Sprintf("Submitted block %s %s", blockhash, powHash))
+	ctx.Logger.Info(fmt.Sprintf("Submitted block with powhash: %s ", powHash))
 
 	if err != nil {
 		// :'(
