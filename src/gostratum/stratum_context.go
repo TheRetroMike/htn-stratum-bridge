@@ -152,6 +152,15 @@ func (sc *StratumContext) ReplyBadShare(id any) error {
 	})
 }
 
+func (sc *StratumContext) ReplyIncorrectPow(id any, recalculated string, submitted string) error {
+	fmt.Printf("Incorrect proof of work %s %s:", recalculated, submitted)
+	return sc.Reply(JsonRpcResponse{
+		Id:     id,
+		Result: nil,
+		Error:  []any{20, "Incorrect proof of work hash", nil},
+	})
+}
+
 func (sc *StratumContext) ReplyLowDiffShare(id any) error {
 	return sc.Reply(JsonRpcResponse{
 		Id:     id,

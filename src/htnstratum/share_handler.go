@@ -299,7 +299,7 @@ func (sh *shareHandler) HandleSubmit(ctx *gostratum.StratumContext, event gostra
 	} else {
 		stats.InvalidShares.Add(1)
 		sh.overall.InvalidShares.Add(1)
-		return errors.New(fmt.Sprintf("Incorrect proof of work %s %s:", recalculatedPowHash.String(), submitInfo.powHash))
+		return ctx.ReplyIncorrectPow(event.Id, recalculatedPowHash.String(), submitInfo.powHash.String())
 	}
 
 	stats.SharesFound.Add(1)
