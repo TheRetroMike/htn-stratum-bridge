@@ -142,7 +142,7 @@ func toBig(hash *externalapi.DomainHash) *big.Int {
 func validateSubmit(ctx *gostratum.StratumContext, event gostratum.JsonRpcEvent) (*submitInfo, error) {
 	if len(event.Params) < 4 {
 		RecordWorkerError(ctx.WalletAddr, ErrBadDataFromMiner)
-		return nil, fmt.Errorf("malformed event, expected at least 2 params")
+		return nil, fmt.Errorf("malformed event, expected at least 4 params")
 	}
 	jobIdStr, ok := event.Params[1].(string)
 	if !ok {

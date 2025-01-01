@@ -3,7 +3,7 @@ module github.com/Hoosat-Oy/htn-stratum-bridge
 go 1.18
 
 require (
-	github.com/Hoosat-Oy/HTND v1.0.4
+	github.com/Hoosat-Oy/HTND v1.1.4
 	github.com/google/go-cmp v0.5.9
 	github.com/google/uuid v1.3.1
 	github.com/mattn/go-colorable v0.1.13
@@ -36,5 +36,3 @@ require (
 	google.golang.org/grpc v1.60.1 // indirect
 	google.golang.org/protobuf v1.32.0 // indirect
 )
-
-replace github.com/Hoosat-Oy/HTND => ../HTND
