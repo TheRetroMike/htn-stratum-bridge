@@ -261,7 +261,7 @@ func (sh *shareHandler) HandleSubmit(ctx *gostratum.StratumContext, event gostra
 		return ctx.ReplyBadShare(event.Id)
 	}
 
-	converted, err := appmessage.RPCBlockToDomainBlock(submitInfo.block)
+	converted, err := appmessage.RPCBlockToDomainBlock(submitInfo.block, submitInfo.powHash.String())
 	if err != nil {
 		return fmt.Errorf("failed to cast block to mutable block: %+v", err)
 	}
@@ -322,7 +322,7 @@ func (sh *shareHandler) submit(ctx *gostratum.StratumContext,
 		Header:       mutable.ToImmutable(),
 		Transactions: block.Transactions,
 	}
-	_, err := sh.hoosat.SubmitBlock(block, powHash)
+	_, err := sh.hoosat.SubmitBlock(block, powHash.String())
 	blockhash := consensushashing.BlockHash(block)
 	// print after the submit to get it submitted faster
 	ctx.Logger.Info(fmt.Sprintf("Submitted block with powhash: %s ", powHash))
